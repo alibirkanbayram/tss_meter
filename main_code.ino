@@ -1,8 +1,27 @@
 // ━━━━━━━━━━━━━━━━━━━━━ Library ━━━━━━━━━━━━━━━━━━━━━
+#include <Arduino.h>
+#if defined(ESP32)
+  #include <WiFi.h>
+#elif defined(ESP8266)
+  #include <ESP8266WiFi.h>
+#endif
+#include <Firebase_ESP_Client.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>    //https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library
 #include <OneWire.h>
 #include <DallasTemperature.h>
+
+// ━━━━━━━━━━━━━━━━━━━━━ WiFi Variable definition ━━━━━━━━━━━━━━━━━━━━━
+#define WIFI_SSID "Birkan"
+#define WIFI_PASSWORD "7717C8963D
+
+// ━━━━━━━━━━━━━━━━━━━━━ Firebase Variable definition ━━━━━━━━━━━━━━━━━━━━━
+#define API_KEY "REPLACE_WITH_YOUR_FIREBASE_PROJECT_API_KEY"
+#define DATABASE_URL "REPLACE_WITH_YOUR_FIREBASE_DATABASE_URL""
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+String path = "";
 
 // ━━━━━━━━━━━━━━━━━━━━━ Variable definition ━━━━━━━━━━━━━━━━━━━━━
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -31,12 +50,33 @@ float Temperature=10, EC=0, EC25 =0, ppm =0, raw= 0, Vin= 5, Vdrop= 0, Rc= 0, bu
 // ━━━━━━━━━━━━━━━━━━━━━ EC Meter Variable definition ━━━━━━━━━━━━━━━━━━━━━
 int pH_Value, phPin=A4;
 
+// ━━━━━━━━━━━━━━━━━━━━━ Setup Variable definition ━━━━━━━━━━━━━━━━━━━━━
+unsigned int serialPortBound=115200;
 
 // ━━━━━━━━━━━━━━━━━━━━━ Setup function ━━━━━━━━━━━━━━━━━━━━━
 void setup(){
     Serial.begin(9600);
     lcd.begin();
     lcd.backlight();
+
+    // Firebase
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    Serial.print("Connecting to Wi-Fi");
+    while (WiFi.status() != WL_CONNECTED){
+        lcd.print(".");
+        delay(300);
+    }
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Connected with IP: ");
+    lcd.setCursor(0,1);
+    lcd.print(WiFi.localIP());
+    config.api_key = API_KEY;
+    config.database_url = DATABASE_URL;
+    Firebase.begin(&config, &auth);
+    Firebase.reconnectWiFi(true);
+    firebase_init();
+
     pinMode(doser1, OUTPUT);
     digitalWrite(doser1, LOW);
 
@@ -129,4 +169,8 @@ void getPH(){
     Voltage = pH_Value * (5.0 / 1023.0);
     Serial.println(Voltage);
     delay(500);
+}
+
+void firebaseSetValue(float value){
+    Firebase.set(fbdo, node.c_str(), value),
 }
