@@ -9,11 +9,11 @@ float volt, ntu,acceptableValue= 0.5;
 
 // ━━━━━━━━━━━━━━━━━━━━━ Setup function ━━━━━━━━━━━━━━━━━━━━━
 void setup(){
-  Serial.begin(9600);
-  lcd.begin();
-  lcd.backlight();
-  pinMode(doser1, OUTPUT);
-  digitalWrite(doser1, LOW);
+    Serial.begin(9600);
+    lcd.begin();
+    lcd.backlight();
+    pinMode(doser1, OUTPUT);
+    digitalWrite(doser1, LOW);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━ Loop function ━━━━━━━━━━━━━━━━━━━━━
